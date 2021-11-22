@@ -10,15 +10,14 @@ import Foundation
 enum ExpressionParser {
     
     static func parse(from input: String) -> Formula {
-        var operands = CalculatorItemQueue<Double>()
-        var operators = CalculatorItemQueue<Operator>()
-        let operandsArray = componentsByOperators(from: input).compactMap { Double($0) }
-        let operatorsArray = input.compactMap { Operator(sign: $0) }
+        let input = input
+        let operands = componentsByOperators(from: input).compactMap { Double($0) }
+        let operators = input.compactMap { Operator(sign: $0) }
         
-        operandsArray.forEach { operands.enqueue($0) }
-        operatorsArray.forEach { operators.enqueue($0) }
-        
-        return Formula(operands: operands, operators: operators)
+        return Formula(
+            operands: CalculatorItemQueue(inbox: operands),
+            operators: CalculatorItemQueue(inbox: operators)
+        )
     }
     
     static func componentsByOperators(from input: String) -> [String] {

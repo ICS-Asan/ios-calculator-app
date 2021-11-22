@@ -8,23 +8,32 @@
 import Foundation
 
 struct CalculatorItemQueue<Element: CalculateItem> {
-    
-    // MARK: private property
-    
-    private var linkedList = LinkedList<Element>()
-    
-}
 
-// MARK: - internal method
-
-extension CalculatorItemQueue {
+    private(set) var inbox: [Element]
+    private(set) var outbox: [Element]
     
-    mutating func enqueue(_ item: Element) {
-        linkedList.append(data: item)
+    init(inbox: [Element] = [], outbox: [Element] = []) {
+        self.inbox = inbox
+        self.outbox = outbox
     }
     
-    mutating func dequeue() -> Element? {
-        return linkedList.removeFirst()
+    private var checkDequeueImpossible: Bool {
+        return inbox.isEmpty && outbox.isEmpty
+    }
+    
+    mutating func enqueue(_ item: Element) {
+        inbox.append(item)
+    }
+    
+    mutating func dequeue() throws -> Element {
+        if checkDequeueImpossible {
+            throw CalculatorError.emptyQueue
+        }
+        if outbox.isEmpty {
+            outbox = inbox.reversed()
+            inbox.removeAll()
+        }
+        return outbox.removeLast()
     }
     
 }

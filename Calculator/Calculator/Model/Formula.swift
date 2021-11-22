@@ -8,26 +8,18 @@
 import Foundation
 
 struct Formula {
-    var operands: CalculatorItemQueue<Double>
-    var operators: CalculatorItemQueue<Operator>
+    var operands = CalculatorItemQueue<Double>()
+    var operators = CalculatorItemQueue<Operator>()
     
     mutating func result() throws -> Double {
-        guard var result = operands.dequeue() else {
-            throw CalculatorError.emptyQueue
-        }
-    
-        var isContinue = true
+        var result = try operands.dequeue()
         repeat {
-            if let calculateOperator = operators.dequeue(),
-               let calculateOperand = operands.dequeue() {
-                result = calculateOperator.calculate(
-                    lhs: result,
-                    rhs: calculateOperand)
-            } else {
-              isContinue = false
-            }
-        } while isContinue
-        
+            let calculateOperator = try operators.dequeue()
+            let calculateOperand = try operands.dequeue()
+            result = calculateOperator.calculate(
+                lhs: result,
+                rhs: calculateOperand)
+        } while !operators.outbox.isEmpty
         return result
     }
 }
